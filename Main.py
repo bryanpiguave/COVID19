@@ -4,7 +4,8 @@ Created on Tue Mar 24 11:58:36 2020
 
 @author: Bryan Piguave
 """
-import time
+
+ 
 import pandas as pd
 import numpy as np
 from SALib.sample import saltelli
@@ -57,7 +58,7 @@ path = r'C:\Users\usuario\Dropbox\PythonEnhanced\COVID19\spatialCOVID19-master\e
 #path = ".\\spatialCOVID19-master\\epiDEM COV_v13.nlogo"
 
 #Numero de ticks o días
-ticks = '100'
+ticks = '120'
 #Import the sampling and analysis modules for a Sobol variance-based
 #Sensitivity analysis
 factores= ['Infectados','camas','Vulnerables','movilidad']
@@ -65,17 +66,13 @@ rango   = [[1,10],[1,10],[0,50],[0.1,2]]
 problem = {'num_vars': len(factores), 'names': factores ,'bounds': rango}
 
 #Tamaño de muestra
-n = 1
+n = 1000
 param_values = saltelli.sample(problem, n, calc_second_order=True)
 experiments = pd.DataFrame(param_values,columns=problem['names'])
 
 #Simulacion
-start =time.perf_counter()
 results = simulacion(experiments,ticks)
-finish = time.perf_counter()
-print(finish-start)
-#Guardar
-results.to_csv(r'C:\Users\usuario\Desktop\Machine Learning\Netlogo\results.csv')
+
 
 #Gráfica de Datos
 import matplotlib.pyplot as plt
@@ -88,7 +85,6 @@ ax[0].set_ylabel('Counts')
 fig.set_size_inches(10,4)
 fig.subplots_adjust(wspace=0.1)
 plt.show()
-plt.savefig('Histograma.png')
 
 #Bivariate scatter plot
 import seaborn as sns
@@ -108,8 +104,7 @@ for i, a in enumerate(ax.flatten()):
         a.set_ylim([0,1.1*np.max(y)])
 fig.set_size_inches(9,9,forward=True)
 fig.subplots_adjust(wspace=0.2, hspace=0.3)
-plt.show()
-plt.savefig('Scatter_plot.png')
+
 # Analysis
 from SALib.analyze import sobol
 Si = sobol.analyze(problem, results['Infectados_final'].values, calc_second_order=True,print_to_console=False)
@@ -122,6 +117,6 @@ err = Si_df[['S1_conf','ST_conf']]
 indices.plot.bar(yerr=err.values.T,ax=ax)
 fig.set_size_inches(8,4)
 plt.show()
-plt.savefig('Analysis.png')
+
 
 
