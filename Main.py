@@ -5,7 +5,8 @@ Created on Tue Mar 24 11:58:36 2020
 @author: Bryan Piguave
 """
 
- 
+
+import os.path
 import pandas as pd
 import numpy as np
 from SALib.sample import saltelli
@@ -19,8 +20,8 @@ def CONNECT_NL(path):
     return netlogo
 
 #Simulacion con sampling
-def simulacion(experiments,ticks):
-    netlogo =CONNECT_NL(path)
+def simulacion(experiments,ticks, file_to_open):
+    netlogo =CONNECT_NL(file_to_open)
     num_exp =len(experiments)
     #Resultados a obtener:      Turtles    Infected   Cured  Hospitalized
     results =np.zeros(shape=[num_exp,3])       
@@ -53,9 +54,8 @@ def simulacion(experiments,ticks):
 #Programa Principal
 #Path de netlogo
     
-path = r'C:\Users\usuario\Dropbox\PythonEnhanced\COVID19\spatialCOVID19-master\epiDEM COV_v13.nlogo'
-#path = "C:\\Users\\ssala\\Dropbox\\PythonEnhanced\\COVID19\\spatialCOVID19-master\\epiDEM COV_v13.nlogo"
-#path = ".\\spatialCOVID19-master\\epiDEM COV_v13.nlogo"
+file_to_open = os.path.join(".","spatialCOVID19-master","epiDEM COV_v13.nlogo")
+#file_to_open = path_folder / "epiDEM COV_v13.nlogo"
 
 #Numero de ticks o días
 ticks = '120'
@@ -66,12 +66,12 @@ rango   = [[1,10],[1,10],[0,50],[0.1,2]]
 problem = {'num_vars': len(factores), 'names': factores ,'bounds': rango}
 
 #Tamaño de muestra
-n = 1000
+n = 100
 param_values = saltelli.sample(problem, n, calc_second_order=True)
 experiments = pd.DataFrame(param_values,columns=problem['names'])
 
 #Simulacion
-results = simulacion(experiments,ticks)
+results = simulacion(experiments, ticks, file_to_open)
 
 
 #Gráfica de Datos
