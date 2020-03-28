@@ -10,5 +10,6 @@ path=r'C:\Users\usuario\Dropbox\PythonEnhanced\COVID19\corona.csv'
 df = pd.read_csv(path,sep=';')
 
 Headers =df.columns
-
+df_1 =df[['nombre_pro Mbvincia','casos_confirmados']]
+df_grp = df_1.groupby(['nombre_pro Mbvincia'], as_index=False).max()
 
