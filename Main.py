@@ -120,18 +120,8 @@ if __name__=='__main__':
     experiments = pd.DataFrame(param_values,columns=problem['names'])
     
     #Simulacion
-    dfs=np.split(experiments,2)
-    
-    
-    #processes = []
-    #results=[]
-    #for i in range(len(dfs)):
-    #    process=Process(target=simulacion,args=(dfs[i], ticks, file_to_open))
-    #    processes.append(process)
-    #    process.start()
-    #    process.join() 
     results =simulacion(experiments, ticks, file_to_open)
-    
+    results.to_csv(os.path.join(".","resultados.csv"))
     #Gráfica de Datos
     #hist(results)
 	#Scatter()
