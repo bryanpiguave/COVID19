@@ -48,25 +48,12 @@ def simulacion(experiments,ticks, file_to_open):
             netlogo.command('repeat {} [go]'.format(ticks))
         except:
             err.append(exp)
-        results[exp]  = netlogo.report('muertes')
-    results = {'Muertes':results}
-    names =list(results.keys()) 
-    results_df = pd.DataFrame(results,columns=names)
+        results[exp]  = netlogo.report('muertes')   
     #Para cerrar Netlogo
     netlogo.kill_workspace()
     print("completado")
-    return results_df,err
+    return results,err
 
-def hist(results):
-    fig, ax = plt.subplots(1,len(results.columns), sharey=True)
-    for i, n in enumerate(results.columns):
-        ax[i].hist(results[n], 20)
-        ax[i].set_xlabel(n)
-    ax[0].set_ylabel('Counts')
-    fig.set_size_inches(10,4)
-    fig.subplots_adjust(wspace=0.1)
-    plt.show()
-    return
 #Programa Principal
 #multiprocessing import Process,Pool
 if __name__=='__main__':
@@ -75,30 +62,29 @@ if __name__=='__main__':
     #file_to_open = path_folder / "epiDEM COV_v13.nlogo"
     
     #Numero de ticks o días
-    ticks = '40'
-    #Import the sampling and analysis modules for a Sobol variance-based
-    #Sensitivity analysis
+    ticks = '20'
+    
     factores= ['precauciones-per','Tasa-Deteccion','Vulnerables','movilidad','probabilidad-contagio']
     problem = {'num_vars': len(factores), 'names': factores}        
     mean_values = np.array([25,50,25,1,25])
     #Uncertainty index 
-    unc=5 #Measured in percentage
+    unc=5                            # Measured in percentage
     ub2=ub1=mean_values*(1+unc/100)  # 5% up mean
     lb2=lb1=mean_values*(1-unc/100)  # 5% below mean
     #Dimensions
-    nd=len(lb1) #determines number of variables considered in sensitivity analysis
-    sample_size=10    #sample size
+    nd=len(lb1)                      #determines number of variables considered in sensitivity analysis
+    sample_size=3                   #sample size
     x=(np.random.rand(sample_size,nd))
     one =np.ones(sample_size)
     
     sample = 1+2*(x-1)*(unc/100) # The % moved between plus or minus the unc%
-    M1 = sample*mean_values # sample 1
+    M1 = sample*mean_values      # sample 1
     x=(np.random.rand(sample_size,nd))
     sample = 1+2*(x-1)*(unc/100) # The % moved between plus or minus the unc%
-    M2 = (sample*mean_values) # sample 2
+    M2 = (sample*mean_values)    # sample 2
     x=(np.random.rand(sample_size,nd))
     sample = 1+2*(x-1)*(unc/100) # The % moved between plus or minus the unc%
-    M3 = sample*mean_values # sample 3
+    M3 = sample*mean_values      # sample 3
     
     lista_N=[]
     lista_NTj=[]
@@ -111,11 +97,34 @@ if __name__=='__main__':
         lista_NTj.append(NTj)
     
     #Simulacion
-    experiments = pd.DataFrame(M1,columns=problem['names'])
+    experiments1 = pd.DataFrame(M1,columns=problem['names'])
+    experiments2 = pd.DataFrame(M2,columns=problem['names']) 
     #err guarda los indices de los que tuvieron un error
-    results,err =simulacion(experiments, ticks, file_to_open)
+    Y,err1 =simulacion(experiments1, ticks, file_to_open)
+    YR,err2 =simulacion(experiments1, ticks, file_to_open)
     
+    YN = np.zeros((sample_size,nd))
+    YTp = np.zeros((sample_size,nd))
+    gamma2_list=[]
+    err_N= [[]] * len(lista_N)
+    err_Nj= [[]]*len(lista_N)
     
+    for i in range(len(lista_N)):
+        experiment = pd.DataFrame(lista_N[i],columns=problem['names']) 
+        YN[:,i],err_N[i] =simulacion(experiment, ticks, file_to_open)
+        experiment = pd.DataFrame(lista_NTj[i],columns=problem['names']) 
+        YTp[:,i],err_Nj[i]=simulacion(experiment, ticks, file_to_open)
+        
+    f0 = 0.5 * (YR.mean() + Y.mean());
+    Variance = (0.5*(1/sample_size))*(sum(Y*Y) + sum(YR*YR)) - f0*f0
+    gama2 = (sum(Y*YR) + sum(YN*YTp))/(2*sample_size)
+    
+    #Histograma
+    plt.title('Histograma')
+    plt.xlabel('Muertes')
+    plt.hist(np.concatenate((Y,YR)))
+    plt.show()
+   
     #processes = []
     #results=[]
     #for i in range(len(dfs)):
@@ -124,7 +133,4 @@ if __name__=='__main__':
     #    process.start()
     #    process.join() 
     
-    
-    #Gráfica de Datos
-    #hist(results)
     
