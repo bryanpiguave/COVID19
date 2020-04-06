@@ -5,13 +5,6 @@ Created on Sat Apr  4 18:22:57 2020
 @author: Bryan Piguave
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 24 11:58:36 2020
-
-@author: Bryan Piguave
-"""
-
 
 import os.path
 import pandas as pd
@@ -62,7 +55,7 @@ if __name__=='__main__':
     #file_to_open = path_folder / "epiDEM COV_v13.nlogo"
     
     #Numero de ticks o días
-    ticks = '20'
+    ticks = '40'
     
     factores= ['precauciones-per','Tasa-Deteccion','Vulnerables','movilidad','probabilidad-contagio']
     problem = {'num_vars': len(factores), 'names': factores}        
@@ -89,7 +82,7 @@ if __name__=='__main__':
     lista_N=[]
     lista_NTj=[]
     
-    ####REVISAR##############3
+   
     
     for j in range(nd):
         Nj=np.zeros((sample_size,nd))
@@ -100,9 +93,7 @@ if __name__=='__main__':
         NTj[:,j]=M2[:,j].copy()
         lista_NTj.append(NTj) 
 
-    ######REVISAR###############
-        
-        
+    
         
     #Simulacion
     experiments1 = pd.DataFrame(M1,columns=problem['names'])
@@ -110,6 +101,7 @@ if __name__=='__main__':
     #err guarda los indices de los que tuvieron un error
     Y,err1 =simulacion(experiments1, ticks, file_to_open)
     YR,err2 =simulacion(experiments1, ticks, file_to_open)
+    
     
     YN = np.zeros((sample_size,nd))
     YTp = np.zeros((sample_size,nd))
@@ -123,22 +115,52 @@ if __name__=='__main__':
         experiment = pd.DataFrame(lista_NTj[i],columns=problem['names']) 
         YTp[:,i],err_Nj[i]=simulacion(experiment, ticks, file_to_open)
         
-    f0 = 0.5 * (YR.mean() + Y.mean());
-    Variance = (0.5*(1/sample_size))*(sum(Y*Y) + sum(YR*YR)) - f0*f0
+    f0 = 0.5*(YR.mean()+Y.mean())
+    Variance = (sum(Y*Y) + sum(YR*YR))/(2*sample_size) - f0*f0
     gama2 = (sum(Y*YR) + sum(YN*YTp))/(2*sample_size)
+    
+    V=np.zeros(nd)
+    V_q=np.zeros(nd)
+    for i in range(nd):
+        V[i]= (sum(Y*YTp[:,i])+sum(YR*YN[:,i])) / (2*sample_size)
+        V_q[i] = (sum(Y*YN[:,i])+sum(YR*YTp[:,i])) / (2*sample_size)
+        
+    s = (V - f0*f0)/Variance
+    st = 1 - (V_q - f0*f0)/Variance
+    
+    sHS = (V - gama2)/Variance
+    stHS = 1 - (V_q - gama2)/Variance
+    
+    ######REVISAR###############
+    
     
     #Histograma
     plt.title('Histograma')
     plt.xlabel('Muertes')
     plt.hist(np.concatenate((Y,YR)))
     plt.show()
-   
-    #processes = []
-    #results=[]
-    #for i in range(len(dfs)):
-    #    process=Process(target=simulacion,args=(dfs[i], ticks, file_to_open))
-    #    processes.append(process)
-    #    process.start()
-    #    process.join() 
+           
+    x=np.arange(len(factores))
+    fig, ax = plt.subplots()
+    width = 0.30  # the width of the bars
+    rects1 = ax.bar(x - width/2, list(sHS), width, label='S')
+    rects2 = ax.bar(x + width/2, list(stHS), width, label='ST')
+    ax.set_ylabel('Scores')
+    ax.set_xlabel('Variables')
+    ax.legend()
+    plt.show()
+    
+    x=np.arange(len(factores))
+    fig, ax = plt.subplots()
+    width = 0.30  # the width of the bars
+    rects1 = ax.bar(x - width/2, list(s), width, label='S')
+    rects2 = ax.bar(x + width/2, list(st), width, label='ST')
+    ax.set_ylabel('Scores')
+    ax.set_xlabel('Variables')
+    ax.legend()
+    plt.show()
+    
+
+    
     
     
