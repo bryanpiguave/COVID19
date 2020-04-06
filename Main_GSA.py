@@ -88,14 +88,22 @@ if __name__=='__main__':
     
     lista_N=[]
     lista_NTj=[]
-    for i in range(len(M1[0])):
-        Nj=M2
-        NTj=M1
-        Nj[:,i]=M1[:,i]
-        NTj[:,i]=M2[:,i]
-        lista_N.append(Nj)
-        lista_NTj.append(NTj)
     
+    ####REVISAR##############3
+    
+    for j in range(nd):
+        Nj=np.zeros((sample_size,nd))
+        Nj=M2.copy()
+        Nj[:,j]=M1[:,j].copy()
+        lista_N.append(Nj) 
+        NTj=M1[:,:].copy()
+        NTj[:,j]=M2[:,j].copy()
+        lista_NTj.append(NTj) 
+
+    ######REVISAR###############
+        
+        
+        
     #Simulacion
     experiments1 = pd.DataFrame(M1,columns=problem['names'])
     experiments2 = pd.DataFrame(M2,columns=problem['names']) 
