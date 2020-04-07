@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 def f(x):
-    return x[0]+x[1]+x[2]**2+x[3]
+    import math
+    return x[0]+x[1]+math.sin(x[2])+x[3]
 
 
 import numpy as np
@@ -13,7 +14,7 @@ ub2=ub1=mean_values*(1+unc/100)  # 5% up mean
 lb2=lb1=mean_values*(1-unc/100)  # 5% below mean
 #Dimensions
 nd=len(lb1) #determines number of variables considered in sensitivity analysis
-sample_size=5000    #sample size
+sample_size=10000    #sample size
 x=(np.random.rand(sample_size,nd))
 one =np.ones(sample_size)
 sample1 = (1+2*(x-1)*(unc/100)) # The % moved between plus or minus the unc%

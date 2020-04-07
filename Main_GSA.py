@@ -44,7 +44,74 @@ def simulacion(experiments,ticks, file_to_open):
         results[exp]  = netlogo.report('muertes')   
     #Para cerrar Netlogo
     netlogo.kill_workspace()
-    print("completado")
+    return results,err
+
+def simulacion1(experiments,M3,ticks, file_to_open):
+    netlogo =CONNECT_NL(file_to_open)
+    num_exp =len(experiments)
+    comando=''
+    err=[]
+    #Resultados a obtener: Muertos
+    results =np.zeros(shape=[num_exp])
+    #Parámetros de simulación
+    netlogo.command('set Poblacion 1000')   
+    netlogo.command('set camas 8')
+    netlogo.command('set Infectados 5')
+    netlogo.command('set tiempo-recuperacion 15')
+    for exp in range(len(experiments)):   
+        for factor in experiments.columns:
+            valor=experiments[factor][exp]
+            comando += 'set {} {} '.format(factor,str(valor))
+        netlogo.command(comando)            
+        #netlogo.command('set efecto-precauciones-per 8 set probabilidad-recuperacion 40')
+        netlogo.command('setup')
+        try:
+            netlogo.command('repeat {} [go]'.format(ticks))
+        except:
+            for exp in range(len(experiments)):   
+                for factor in experiments.columns:
+                    valor=M3[experiments.columns.index(factor)][exp]
+                    comando += 'set {} {} '.format(factor,str(valor))
+                    netlogo.command(comando)            
+                    netlogo.command('setup')
+                    try:
+                        netlogo.command('repeat {} [go]'.format(ticks))
+                    except:
+                        continue
+            err.append(exp)
+        results[exp]  = netlogo.report('muertes')   
+    #Para cerrar Netlogo
+    netlogo.kill_workspace()
+    return results,err
+
+def sim_N(experiments,ticks, file_to_open,media):
+    netlogo =CONNECT_NL(file_to_open)
+    num_exp =len(experiments)
+    comando=''
+    err=[]
+    #Resultados a obtener: Muertos
+    results =np.zeros(shape=[num_exp])
+    #Parámetros de simulación
+    netlogo.command('set Poblacion 1000')   
+    netlogo.command('set camas 8')
+    netlogo.command('set Infectados 5')
+    netlogo.command('set tiempo-recuperacion 15')
+    for exp in range(len(experiments)):   
+        for factor in experiments.columns:
+            valor=experiments[factor][exp]
+            comando += 'set {} {} '.format(factor,str(valor))
+        netlogo.command(comando)            
+        #netlogo.command('set efecto-precauciones-per 8 set probabilidad-recuperacion 40')
+        netlogo.command('setup')
+        try:
+            netlogo.command('repeat {} [go]'.format(ticks))
+        except:
+            err.append(exp)
+            results[exp]  = media
+            continue
+        results[exp]  = netlogo.report('muertes')   
+    #Para cerrar Netlogo
+    netlogo.kill_workspace()
     return results,err
 
 #Programa Principal
@@ -55,18 +122,18 @@ if __name__=='__main__':
     #file_to_open = path_folder / "epiDEM COV_v13.nlogo"
     
     #Numero de ticks o días
-    ticks = '40'
+    ticks = '120'
     
     factores= ['precauciones-per','Tasa-Deteccion','Vulnerables','movilidad','probabilidad-contagio']
     problem = {'num_vars': len(factores), 'names': factores}        
-    mean_values = np.array([25,50,25,1,25])
+    mean_values = np.array([25,30,25,1,25])
     #Uncertainty index 
     unc=5                            # Measured in percentage
     ub2=ub1=mean_values*(1+unc/100)  # 5% up mean
     lb2=lb1=mean_values*(1-unc/100)  # 5% below mean
     #Dimensions
     nd=len(lb1)                      #determines number of variables considered in sensitivity analysis
-    sample_size=3                   #sample size
+    sample_size=2                   #sample size
     x=(np.random.rand(sample_size,nd))
     one =np.ones(sample_size)
     
@@ -99,10 +166,13 @@ if __name__=='__main__':
     experiments1 = pd.DataFrame(M1,columns=problem['names'])
     experiments2 = pd.DataFrame(M2,columns=problem['names']) 
     #err guarda los indices de los que tuvieron un error
-    Y,err1 =simulacion(experiments1, ticks, file_to_open)
-    YR,err2 =simulacion(experiments1, ticks, file_to_open)
+    Y,err1 =simulacion1(experiments1,M3, ticks, file_to_open)
+    print('Y 1')
+    YR,err2 =simulacion1(experiments2,M3, ticks, file_to_open)
+    print('Y 2')
     
-    
+    f0 = 0.5*(YR.mean()+Y.mean())
+    Variance = (sum(Y*Y) + sum(YR*YR))/(2*sample_size) - f0*f0   
     YN = np.zeros((sample_size,nd))
     YTp = np.zeros((sample_size,nd))
     gamma2_list=[]
@@ -111,12 +181,11 @@ if __name__=='__main__':
     
     for i in range(len(lista_N)):
         experiment = pd.DataFrame(lista_N[i],columns=problem['names']) 
-        YN[:,i],err_N[i] =simulacion(experiment, ticks, file_to_open)
+        YN[:,i],err_N[i] =sim_N(experiment, ticks, file_to_open,f0)
         experiment = pd.DataFrame(lista_NTj[i],columns=problem['names']) 
-        YTp[:,i],err_Nj[i]=simulacion(experiment, ticks, file_to_open)
+        YTp[:,i],err_Nj[i]=sim_N(experiment, ticks, file_to_open,f0)
         
-    f0 = 0.5*(YR.mean()+Y.mean())
-    Variance = (sum(Y*Y) + sum(YR*YR))/(2*sample_size) - f0*f0
+    
     gama2 = (sum(Y*YR) + sum(YN*YTp))/(2*sample_size)
     
     V=np.zeros(nd)
