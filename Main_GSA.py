@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+0# -*- coding: utf-8 -*-
 """
 Created on Sat Apr  4 18:22:57 2020
 
@@ -26,16 +26,12 @@ def simulacion(experiments,ticks, file_to_open):
     #Resultados a obtener: Muertos
     results =np.zeros(shape=[num_exp])
     #Parámetros de simulación
-    netlogo.command('set Poblacion 1000')   
-    netlogo.command('set camas 8')
-    netlogo.command('set Infectados 5')
-    netlogo.command('set tiempo-recuperacion 15')
+    netlogo.command('set Poblacion 1000 set camas 8 set Infectados 5 set tiempo-recuperacion 15 set efecto-precauciones-per 8 set probabilidad-recuperacion 40')   
     for exp in range(len(experiments)):   
         for factor in experiments.columns:
             valor=experiments[factor][exp]
             comando += 'set {} {} '.format(factor,str(valor))
         netlogo.command(comando)            
-        #netlogo.command('set efecto-precauciones-per 8 set probabilidad-recuperacion 40')
         netlogo.command('setup')
         try:
             netlogo.command('repeat {} [go]'.format(ticks))
@@ -54,23 +50,19 @@ def simulacion1(experiments,M3,ticks, file_to_open):
     #Resultados a obtener: Muertos
     results =np.zeros(shape=[num_exp])
     #Parámetros de simulación
-    netlogo.command('set Poblacion 1000')   
-    netlogo.command('set camas 8')
-    netlogo.command('set Infectados 5')
-    netlogo.command('set tiempo-recuperacion 15')
+    netlogo.command('set Poblacion 1000 set camas 8 set Infectados 5 set tiempo-recuperacion 15 set efecto-precauciones-per 8 set probabilidad-recuperacion 40')   
     for exp in range(len(experiments)):   
         for factor in experiments.columns:
             valor=experiments[factor][exp]
             comando += 'set {} {} '.format(factor,str(valor))
         netlogo.command(comando)            
-        #netlogo.command('set efecto-precauciones-per 8 set probabilidad-recuperacion 40')
         netlogo.command('setup')
         try:
             netlogo.command('repeat {} [go]'.format(ticks))
         except:
             for exp in range(len(experiments)):   
                 for factor in experiments.columns:
-                    valor=M3[experiments.columns.index(factor)][exp]
+                    valor=M3[exp,list(experiments.columns).index(factor)]
                     comando += 'set {} {} '.format(factor,str(valor))
                     netlogo.command(comando)            
                     netlogo.command('setup')
@@ -92,16 +84,12 @@ def sim_N(experiments,ticks, file_to_open,media):
     #Resultados a obtener: Muertos
     results =np.zeros(shape=[num_exp])
     #Parámetros de simulación
-    netlogo.command('set Poblacion 1000')   
-    netlogo.command('set camas 8')
-    netlogo.command('set Infectados 5')
-    netlogo.command('set tiempo-recuperacion 15')
+    netlogo.command('set Poblacion 1000 set camas 8 set probabilidad-recuperacion 40 set Infectados 5 set tiempo-recuperacion 15 set efecto-precauciones-per 8 ')   
     for exp in range(len(experiments)):   
         for factor in experiments.columns:
             valor=experiments[factor][exp]
             comando += 'set {} {} '.format(factor,str(valor))
         netlogo.command(comando)            
-        #netlogo.command('set efecto-precauciones-per 8 set probabilidad-recuperacion 40')
         netlogo.command('setup')
         try:
             netlogo.command('repeat {} [go]'.format(ticks))
@@ -120,10 +108,8 @@ if __name__=='__main__':
     #Path de netlogo
     file_to_open = os.path.join(".","spatialCOVID19-master","epiDEM COV_v13.nlogo")
     #file_to_open = path_folder / "epiDEM COV_v13.nlogo"
-    
     #Numero de ticks o días
     ticks = '120'
-    
     factores= ['precauciones-per','Tasa-Deteccion','Vulnerables','movilidad','probabilidad-contagio']
     problem = {'num_vars': len(factores), 'names': factores}        
     mean_values = np.array([25,30,25,1,25])
@@ -135,8 +121,7 @@ if __name__=='__main__':
     nd=len(lb1)                      #determines number of variables considered in sensitivity analysis
     sample_size=2                   #sample size
     x=(np.random.rand(sample_size,nd))
-    one =np.ones(sample_size)
-    
+    one =np.ones(sample_size) 
     sample = 1+2*(x-1)*(unc/100) # The % moved between plus or minus the unc%
     M1 = sample*mean_values      # sample 1
     x=(np.random.rand(sample_size,nd))
@@ -145,11 +130,9 @@ if __name__=='__main__':
     x=(np.random.rand(sample_size,nd))
     sample = 1+2*(x-1)*(unc/100) # The % moved between plus or minus the unc%
     M3 = sample*mean_values      # sample 3
-    
     lista_N=[]
     lista_NTj=[]
-    
-   
+     
     
     for j in range(nd):
         Nj=np.zeros((sample_size,nd))
@@ -160,8 +143,7 @@ if __name__=='__main__':
         NTj[:,j]=M2[:,j].copy()
         lista_NTj.append(NTj) 
 
-    
-        
+           
     #Simulacion
     experiments1 = pd.DataFrame(M1,columns=problem['names'])
     experiments2 = pd.DataFrame(M2,columns=problem['names']) 
@@ -201,8 +183,7 @@ if __name__=='__main__':
     stHS = 1 - (V_q - gama2)/Variance
     
     ######REVISAR###############
-    
-    
+        
     #Histograma
     plt.title('Histograma')
     plt.xlabel('Muertes')
