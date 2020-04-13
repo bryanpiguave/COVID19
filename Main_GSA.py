@@ -103,7 +103,6 @@ def sim_N(experiments,ticks, file_to_open,media):
     return results,err
 
 #Programa Principal
-#multiprocessing import Process,Pool
 if __name__=='__main__':
     #Path de netlogo
     file_to_open = os.path.join(".","spatialCOVID19-master","epiDEM COV_v13.nlogo")
