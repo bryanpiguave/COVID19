@@ -41,7 +41,32 @@ def simulacion(experiments,ticks, file_to_open,results,q):
     q.put(results)
     return results,err
 
-
+def sim_N(experiments,ticks, file_to_open,media,q,results):
+    netlogo =CONNECT_NL(file_to_open)
+    num_exp =len(experiments)
+    comando=''
+    err=[]
+    #Resultados a obtener: Muertos
+    results =np.zeros(shape=[num_exp])
+    #Parámetros de simulación
+    netlogo.command('set Poblacion 1000 set camas 8 set probabilidad-recuperacion 40 set Infectados 5 set tiempo-recuperacion 15 set efecto-precauciones-per 8 ')   
+    for exp in range(len(experiments)):   
+        for factor in experiments.columns:
+            valor=experiments[factor][exp]
+            comando += 'set {} {} '.format(factor,str(valor))
+        netlogo.command(comando)            
+        netlogo.command('setup')
+        try:
+            netlogo.command('repeat {} [go]'.format(ticks))
+        except:
+            err.append(exp)
+            results[exp]  = media
+            continue
+        results[exp]  = netlogo.report('muertes')   
+    #Para cerrar Netlogo
+    netlogo.kill_workspace()
+    q.put(results)
+    return results,err
 
 #Programa Principal
 from multiprocessing import Process,Queue
@@ -101,9 +126,6 @@ if __name__=='__main__':
     process.join()
     YR=q.get()
     
-    #Y,err1 =simulacion(experiments1,ticks,file_to_open,Y)
-    #YR,err2 =simulacion(experiments2,ticks,file_to_open,YR)
-    
     f0 = 0.5*(YR.mean()+Y.mean())
     Variance = (sum(Y*Y) + sum(YR*YR))/(2*sample_size) - f0*f0   
     
@@ -114,26 +136,64 @@ if __name__=='__main__':
     err_Nj= [[]]*len(lista_N)    
     
     
+    for i in range(len(lista_N)):
+        experiment = pd.DataFrame(lista_N[i],columns=problem['names']) 
+        process=Process(target=simulacion,args=(experiment, ticks,file_to_open,YN[:,i]))
+        process.start()
+        process.join()
+        YN[:,i] =q.get()
+        experiment = pd.DataFrame(lista_NTj[i],columns=problem['names']) 
+        process=Process(target=simulacion,args=(experiment, ticks,file_to_open,YTp[:,i]))
+        process.start()
+        process.join()
+        YTp[:,i] =q.get()
+        
+        
+    gama2 = (sum(Y*YR) + sum(YN*YTp))/(2*sample_size)
+    
+    V=np.zeros(nd)
+    V_q=np.zeros(nd)
+    for i in range(nd):
+        V[i]= (sum(Y*YTp[:,i])+sum(YR*YN[:,i])) / (2*sample_size)
+        V_q[i] = (sum(Y*YN[:,i])+sum(YR*YTp[:,i])) / (2*sample_size)
+        
+    s = (V - f0*f0)/Variance
+    st = 1 - (V_q - f0*f0)/Variance
+    
+    sHS = (V - gama2)/Variance
+    stHS = 1 - (V_q - gama2)/Variance
+    
+    
+    
+    
     #Histograma
     plt.title('Histograma')
     plt.xlabel('Muertes')
     plt.hist(np.concatenate((Y,YR)))
     plt.show()
     
+    x=np.arange(len(factores))
+    fig, ax = plt.subplots()
+    width = 0.30  # the width of the bars
+    rects1 = ax.bar(x - width/2, list(sHS), width, label='S')
+    rects2 = ax.bar(x + width/2, list(stHS), width, label='ST')
+    ax.set_ylabel('Scores')
+    ax.set_xlabel('Variables')
+    ax.legend()
+    plt.show()
     
+    x=np.arange(len(factores))
+    fig, ax = plt.subplots()
+    width = 0.30  # the width of the bars
+    rects1 = ax.bar(x - width/2, list(s), width, label='S')
+    rects2 = ax.bar(x + width/2, list(st), width, label='ST')
+    ax.set_ylabel('Scores')
+    ax.set_xlabel('Variables')
+    ax.legend()
+    plt.show()
     
-    
-    """
-    for i in range(len(lista_N)):
-        experiment = pd.DataFrame(lista_N[i],columns=problem['names']) 
-        YN[:,i],err_N[i] =simulacion(experiment,ticks,file_to_open,YN)
-        experiment = pd.DataFrame(lista_NTj[i],columns=problem['names']) 
-        YTp[:,i],err_Nj[i]=simulacion(experiment,ticks,file_to_open)
-        process=Process(target=simulacion,args=(experiment, ticks,file_to_open,YTp))
-        processes.append(process)
-        process.start()
-        process.join()
-    """
+   
+
 
     
 
