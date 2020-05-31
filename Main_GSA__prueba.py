@@ -80,7 +80,7 @@ def iterador_Nj(experiments,netlogo,f0):
 def simulacion_multiple(lista_N,lista_NTj,ticks,f0,file_to_open):
     netlogo =CONNECT_NL(file_to_open)   
     #Parámetros de simulación
-    netlogo.command('set Poblacion 1000 set camas 8 set Infectados 5 set tiempo-recuperacion 15 set efecto-precauciones-per 8 set probabilidad-recuperacion 30')   
+    netlogo.command('set Poblacion 1000 set camas 8 set Infectados 5 set tiempo-recuperacion 15 set efecto-precauciones-per 8 set probabilidad-recuperacion 40')   
     YN = np.zeros((sample_size,nd))
     YTp = np.zeros((sample_size,nd))   
     err_N= [[]] * len(lista_N)
@@ -105,6 +105,13 @@ def sim_N(experiments,ticks, file_to_open,media):
     netlogo =CONNECT_NL(file_to_open)
     #Parámetros de simulación
     netlogo.command('set Poblacion 1000 set camas 8 set probabilidad-recuperacion 40 set Infectados 5 set tiempo-recuperacion 15 set efecto-precauciones-per 8 ')   
+    
+    
+    
+    
+    
+    
+    
     results,err=iterador_Nj(experiments,netlogo,f0) 
     #Para cerrar Netlogo
     netlogo.kill_workspace()
