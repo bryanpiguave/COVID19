@@ -1,78 +1,102 @@
-	# Dispersión COVID 19 
+    # COVID 19 
 
 	WORK IN PROGRESS
-
-	v0.9
-
-	para más información:
+	
+	For more information, please contact:
+	
 	Daniel Orellana V. Universidad de Cuenca
 	daniel.orelana@ucuenca.edu.ec
-	https://www.twitter.com/temporalista
-
-	## Instrucciones generales
-
-	- Descargar los archivos de esta carpeta.
-	- Abrir el modelo epiDEM COV.html en el navegador (El funcionamiento es más lento)
-	- Alternativamente instalar NetLogo y abrir el modelo epiDEM COV.nlogo (simulación más rápida y funciones adicionales)
-
-	## De qué se trata?
-
-	Este modelo es una ampliación del modelo epiDEM desarrolado por Yang, C. and Wilensky, U. (2011).Simula la propagación espacial de un virus en dos poblaciones semi-cerradas bajo una serie de condiciones, tales como mobilidad interna, predisposición a la cuarentena, medidas personales de sanidad, etc. El modelo no busca realizar predicciones sino ilustrar cómo afectan los cambios de estas medidas en la propagación del virus.
-
-	En general, el modelo permite a los usuarios:
-	1) Entender la dinámica de una enfermedad emergente como el COVID-19 en relación a medidas de control, cuarentenas, prohibición de viajes, etc.
-	2) Experimentar la comparación de medidas entre dos poblaciones similares
-	3) Entender el concepto de #AplanarLaCurva para evitar el colapso del sistema de salud
-	4) (por desarrollar) Explorar el impacto de comportamientos de pánico en algunos comportamientos emergentes: desabastecimiento,  saturación de los hospitales, etc.
-
-	## Cambios con respecto a Yang, C. and Wilensky, U. (2011)
-	- Inclusión de una variable que representa el estado de salud general de la persona está representado en una escala del 1 al 10. Al inicio, cada persona recibe un valor de saludo de una distribución normal (media=7 std=2). Durante el período sintomático, el estado de salud se deteriora a una tasa DS hasta curarse o hasta llegar a 0 (fallecimiento).
-
-	-  Cada "país" tiene sus propias variables, por lo que es posible comparar situaciones y medidas distintas.
-	-  Código reificado para mejorar la legibilidad y extensibilidad.
-	- Se introduce el factor de " eficacia de medidas personales",es decir, cada agente tiene una probabilidad de adoptar comportamientos que disminuyen la probabilidad de contagio en un factor de eficacia *emp*
-	- Se introduce como variables el número inicial de infectados en cada país.
-	- El R0 se calcula para cada país de forma independiente.	
+	
+	Bryan V. Piguave
+	bpiguave@espol.edu.ec
+	
+	Santiago Salas
+	sdsalas@espol.edu.ec
+	
+	Dany De Cecchis
+	dany@espol.edu.ec
+	
 	
 
+	## Python libraries required
+    
+    - Numpy 
+    - Pandas 
+    - Matplotlib 
+    - jpype
+    - pyNetlogo
+	
+	
+	## How to run this model
+    
+    To run this model, you have download the files from this repository. 
+    Spyder and Netlogo 6.1.1 are required to script files.
+    
+    
+
+	## About
+	
+	This model is an extension from epiDEM model developed by Yang, C. and Wilensky U. (2011)
+    It simulates the spatial spread of a virus in two semi-closed populations under a series of conditions, such as internal mobility, predisposition to quarantine, personal health measures, etc.
+    The model is not intended to make predictions, but rather to illustrate how changes in these measures affect the spread of the virus.
+
+	In general, the model allows users to:
+    1) Understand the dynamics of an emerging disease such as COVID-19 in relation to control measures, quarantines, travel prohibition, etc.
+    2) Experience measurement comparison
+    3) Understand the concept of #Flatten the curve to avoid the collapse of the health system
+    4) Explore the impact on saturation of hospitals.
+
+    
+    The Sobol method, which is variance-based sensitivity analysis, was employed to classify the most sensitive parameters.
+    
+    
+    
+    
+
+	## Changes Yang, C. and Wilensky, U. (2011)
+	
+	- Each "country" has its own variables, making it possible to compare different situations and measures.
+    - Reified code to improve readability and extensibility.
+    - The "efficacy of personal measures" factor is introduced, that is, each agent has a probability of adopting behaviors that decrease the probability of contagion by an efficacy factor * emp *
+    - The initial number of infected in each country is entered as variables.
+    - The R0 is calculated for each country independently.
+	
+	## Features of this version: 
+
+	- The assumption of a relapse is not modeled and full immunity is assumed after recovery.
+    - The person's general health status is represented on a scale from 1 to 10.
+    - At the beginning, each person receives a greeting value from a normal distribution (mean = 7 std = 2). When the state of health deteriorates to 0, the person dies.
+
+	##Aspects to consider:
+
+	As with many epidemiological models, the number of people becoming infected over time, in the event of an epidemic, traces out an "S-curve." It is called an S-curve because it is shaped like a sideways S. 
+	By changing the values of the parameters using the slider, try to see what kinds of changes make the S curve stretch or shrink.
+    Whenever there's a spread of the disease that reaches most of the population, we say that there was an epidemic. 
+    The reproduction number serves as an indicator for the likeliness of an epidemic to occur, if it is greater than 1. If it is smaller than 1, then it is likely that the disease spread will stop short, and we call this an endemic.
+    Notice how the introduction of various human behaviors, such as travel, inoculation, isolation and quarantine, help constrain the spread of the disease, and what changes that brings to the population level in terms of rate and time taken of disease spread, as well as the population affected.
 
 
 
-	## Algunas características en esta versión: 
 
-	- No está modelado el supuesto de una recaida y se asume inmunidad completa luego de la recuperación.
-	- El estado de salud general de la persona está representado en una escala del 1 al 10. 
-	- Al inicio, cada persona recibe un valor de saludo de una distribución normal (media=7 std=2). Cuando el estado de salud se deteriora hasta 0, la persona fallece.
-
-	##Aspectos a revisar:
-
-	Potenciales colaboradores pueden enfocarse en revisar y validar algunos aspectos:
-
-	- Suposiciones teóricas: El moelo está basado en Yang, C. and Wilensky, U. (2011). Sin embargo, es necesario revisar estas suposiciones (Ej. el R0 es un resultado del modelo) para el caso del COVID (ej, el R0 es calculado como resultado del modelo)
-
-	- Características del COVID-19. El modelo es genérico, pero es posible calibrarlo para algunas características del COVID-19: Período de incubación, período sintomático, retardo del autoaislamiento, etc.
-
-
-
-
-## Modelos relacionados
+## Related models
 
 epiDEM basic, HIV, Virus and Virus on a Network are related models.
 
-## Cómo citar
+## How to cite
 
-Si desea utilizar este modelo, por favor incluir las siguientes citas:
+If you would like to use this model, please include the following cites:
 
 * Orellana, D. (2020) Exploring preventive measures for spatial dispersion of epidemies: An ABM approach based on epiDEMTravelandControl model. Universidad de Cuenca.
 
-
-Modelo Original:
+Original model:
 
 * Yang, C. and Wilensky, U. (2011).  NetLogo epiDEM Travel and Control model.  http://ccl.northwestern.edu/netlogo/models/epiDEMTravelandControl.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+
 
 ## COPYRIGHT AND LICENSE
 
@@ -89,5 +113,3 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 <!-- 2011 Cite: Yang, C. -->
-
-## Funciones pendientes

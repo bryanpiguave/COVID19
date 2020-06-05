@@ -12,6 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def CONNECT_NL(path):
+    # To connect netlogo
+    
     import pyNetLogo
     netlogo = pyNetLogo.NetLogoLink()
     netlogo.load_model(path)
@@ -93,14 +95,8 @@ def simulacion_multiple(lista_N,lista_NTj,ticks,f0,file_to_open):
     netlogo.kill_workspace()
     return YN,YTp,err_N,err_Nj
 
-#Programa Principal
-if __name__=='__main__':
-    #Path de netlogo
-    file_to_open = os.path.join(".","spatialCOVID19-master","epiDEM COV_v13.nlogo")
-    #file_to_open = path_folder / "epiDEM COV_v13.nlogo"
-    #Numero de ticks o días
-    ticks = '10'
-    factores= ['precauciones-per','Tasa-Deteccion','Vulnerables','movilidad','probabilidad-contagio']
+   
+    
 def sim_N(experiments,ticks, file_to_open,media):
     netlogo =CONNECT_NL(file_to_open)
     #Parámetros de simulación
@@ -110,13 +106,15 @@ def sim_N(experiments,ticks, file_to_open,media):
     netlogo.kill_workspace()
     return results,err
 
-#Programa Principal
+
+
+#Main Prog Principal
 if __name__=='__main__':
     #Path de netlogo
     file_to_open = os.path.join(".","spatialCOVID19-master","epiDEM COV_v13.nlogo")
     #file_to_open = path_folder / "epiDEM COV_v13.nlogo"
     #Numero de ticks o días
-    ticks = '120'
+    ticks = '10'
     factores= ['precauciones-per','Tasa-Deteccion','Vulnerables','movilidad','probabilidad-contagio']      
     mean_values = np.array([25,30,25,1,25])
     #Uncertainty index 
@@ -149,7 +147,7 @@ if __name__=='__main__':
         lista_NTj.append(NTj) 
 
            
-    #Simulacion
+    #Simulation
     experiments1 = pd.DataFrame(M1,columns=factores)
     experiments2 = pd.DataFrame(M2,columns=factores) 
     Y,err1,YR,err2=simulacion_doble(experiments1,experiments2,M3,file_to_open)
@@ -175,7 +173,7 @@ if __name__=='__main__':
     sHS = (V - gama2)/Variance
     stHS = 1 - (V_q - gama2)/Variance
           
-    #Histograma
+    #Histogram
     plt.title('Histograma')
     plt.xlabel('Muertes')
     plt.hist(np.concatenate((Y,YR)))
