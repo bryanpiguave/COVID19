@@ -20,17 +20,18 @@
 
 	## Python libraries required
     
-    - Numpy 
-    - Pandas 
-    - Matplotlib 
-    - jpype
-    - pyNetlogo
+    - Numpy 	 1.18.1
+    - Pandas 	 1.0.1
+    - Matplotlib 3.1.3
+    - jpype1  	 0.7.5 
+    - pyNetlogo  0.4.1
 	
 	
 	## How to run this model
     
     To run this model, you have download the files from this repository. 
-    Spyder and Netlogo 6.1.1 are required to script files.
+    Python 3.7.6 and Netlogo 6.1.1 are required to script files.
+    
     
     
 
