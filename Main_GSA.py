@@ -152,7 +152,7 @@ if __name__=='__main__':
     experiments2 = pd.DataFrame(M2,columns=factores) 
     Y,err1,YR,err2=simulacion_doble(experiments1,experiments2,M3,file_to_open)
         
-    f0 = 0.5*(YR.mean()+Y.mean())
+    f0 = 0.5*(YR.mean()+Y.mean())                                       
     Variance = (sum(Y*Y) + sum(YR*YR))/(2*sample_size) - f0*f0   
     
     gamma2_list=[]
